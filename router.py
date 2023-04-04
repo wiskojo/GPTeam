@@ -18,7 +18,6 @@ def main():
         ) = router.recv_multipart()[  # pylint:disable=E1136
             :3
         ]
-        print(f"Routing message from {from_agent_id} to {to_agent_id}: {message}")
 
         # Send the message to the target subprocess
         router.send_multipart([to_agent_id, message])
