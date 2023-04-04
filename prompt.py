@@ -32,6 +32,9 @@ Response Format:
     }
 ]
 
+Constraints:
+- Maximum list size for response = 3
+
 NOTE: delegation not yet implemented, orchestrator will have to do everything by itself for now.
 
 You should only respond in JSON format as described above
