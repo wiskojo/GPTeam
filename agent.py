@@ -15,7 +15,14 @@ class Agent:
         self.chat.add_user_message(message)
         response = await self.chat.get_chat_response()
         actions = parse_actions(response)
-        if actions:
+        if actions is None:
+            await self.dealer.send_multipart(
+                [
+                    self.dealer.identity,
+                    "Your response could not be parsed into the JSON format using json.loads. Please make sure you follow the format strictly.".encode(),
+                ]
+            )
+        else:
             for action in actions:
                 await self.handle_action(action)
 
