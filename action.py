@@ -48,10 +48,6 @@ class ActionExecutor:
             pass
         elif action.name == "append_to_file":
             pass
-        elif action.name == "add_memory":
-            pass
-        elif action.name == "recall_memory":
-            pass
         elif action.name == "finish":
             pass
         else:
