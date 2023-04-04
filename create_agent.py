@@ -3,32 +3,13 @@ import zmq
 import zmq.asyncio
 import argparse
 
-from chat import Chat
+from agent import Agent
 
 
-async def listen_for_messages(dealer):
+async def listen_for_messages(agent):
     while True:
-        message = await dealer.recv_string()
-        print("Message received:", message)
-
-        chat.add_user_message(message)
-        response = await chat.get_chat_response()
-
-        print("Message response:", response)
-
-        # TODO: Chat goes here to get action response
-        # TODO: Output gets parsed into actions
-        # TODO: Actions get dispatched to executor
-
-        # target_id = input("Enter target subprocess ID: ")
-        # response = f"Subprocess {dealer.identity.decode()} says: {message}"
-        # await dealer.send_multipart(
-        #     [
-        #         dealer.identity,
-        #         target_id.encode(),
-        #         response.encode(),
-        #     ]
-        # )
+        message = await agent.dealer.recv_string()
+        await agent.handle_message(message)
 
 
 async def main(args):
@@ -39,11 +20,13 @@ async def main(args):
 
     print(f"Agent {args.agent_id} is connected")
 
+    agent = Agent(name=args.agent_id, prompt=args.prompt, dealer=dealer)
+
     # Send the initial message based on the command line argument
     await dealer.send_multipart([dealer.identity, args.task.encode()])
 
     # Start the listening task
-    await listen_for_messages(dealer)
+    await listen_for_messages(agent)
 
 
 if __name__ == "__main__":
@@ -61,7 +44,5 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-
-    chat = Chat(prompt=args.prompt)
 
     asyncio.run(main(args))
