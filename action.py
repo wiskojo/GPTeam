@@ -1,5 +1,6 @@
 import asyncio
 import json
+import os
 from typing import Any, Dict, List
 
 import aioconsole
@@ -50,10 +51,10 @@ class ActionExecutor:
             task = read_file(action.args.get("file"))
         elif action.name == "append_to_file":
             task = append_to_file(action.args.get("file"), action.args.get("text"))
-        # TODO: Implement finish
         elif action.name == "finish":
-            pass
+            task = self._finish(action.args)
         else:
+            # TODO: Currently treating unrecognized actions as "no-op"
             pass
 
         if task:
@@ -110,3 +111,7 @@ class ActionExecutor:
                 ("Result from browse_website:\n\n" + result).encode(),
             ]
         )
+
+    async def _finish(self, args: Dict[str, Any]):
+        await self._message_user(args.get("results"))
+        os._exit(0)  # pylint:disable=W0212
