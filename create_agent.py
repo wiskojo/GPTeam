@@ -1,7 +1,8 @@
+import argparse
 import asyncio
+
 import zmq
 import zmq.asyncio
-import argparse
 
 from agent import Agent
 
@@ -9,7 +10,7 @@ from agent import Agent
 async def listen_for_messages(agent):
     while True:
         message = await agent.dealer.recv_string()
-        await agent.handle_message(message)
+        asyncio.create_task(agent.handle_message(message))
 
 
 async def main(args):

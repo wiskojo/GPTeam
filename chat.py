@@ -1,9 +1,10 @@
 from typing import Optional
 
-from langchain.callbacks.base import CallbackManager
-from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+from langchain.callbacks.base import AsyncCallbackManager
 from langchain.chat_models.openai import ChatOpenAI
 from langchain.schema import AIMessage, HumanMessage, SystemMessage
+
+from streaming_file_callback import StreamingFileCallbackHandler
 
 
 class Chat:
@@ -16,14 +17,9 @@ class Chat:
         max_tokens: Optional[int] = None,
     ):
         self.model_name = model_name
-        self.chat = ChatOpenAI(
-            model_name=model_name,
-            temperature=temperature,
-            streaming=True,
-            callback_manager=CallbackManager([StreamingStdOutCallbackHandler()]),
-            verbose=verbose,
-            max_tokens=max_tokens,
-        )
+        self.temperature = temperature
+        self.verbose = verbose
+        self.max_tokens = max_tokens
         self.conversation = []
 
         if prompt:
@@ -39,8 +35,18 @@ class Chat:
     def add_assistant_message(self, message: str):
         self.conversation.append(AIMessage(content=message))
 
+    def _get_chat(self):
+        return ChatOpenAI(
+            model_name=self.model_name,
+            temperature=self.temperature,
+            streaming=True,
+            callback_manager=AsyncCallbackManager([StreamingFileCallbackHandler()]),
+            verbose=self.verbose,
+            max_tokens=self.max_tokens,
+        )
+
     async def get_chat_response(self):
-        response = await self.chat.agenerate(messages=[self.conversation])
+        response = await self._get_chat().agenerate(messages=[self.conversation])
 
         chat_response = response.generations[0][0].message.content
         self.add_assistant_message(chat_response)

@@ -1,10 +1,11 @@
+import asyncio
+import json
 from typing import Any, Dict, List
+
+import aioconsole
 from pydantic import BaseModel
 from zmq import Socket
-import asyncio
 
-import json
-import aioconsole
 import browse
 
 
@@ -42,12 +43,14 @@ class ActionExecutor:
             task = self._google(action.args)
         elif action.name == "browse_website":
             task = self._browse_website(action.args)
+        # TODO: Implement file IO actions
         elif action.name == "write_to_file":
             pass
         elif action.name == "read_file":
             pass
         elif action.name == "append_to_file":
             pass
+        # TODO: Implement finish
         elif action.name == "finish":
             pass
         else:
@@ -71,6 +74,7 @@ class ActionExecutor:
     async def _google(self, args: Dict[str, Any], num_results=8):
         # TODO: Should make this async
         search_results = list(browse.search(args["input"], num_results=num_results))
+        # TODO: Generalize the return structure, and add more info like action, args, history?, etc.
         await self.dealer.send_multipart(
             [
                 self.dealer.identity,
