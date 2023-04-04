@@ -1,8 +1,9 @@
+import asyncio
+from threading import Thread
+
 import gradio as gr
 import zmq
 import zmq.asyncio
-import asyncio
-from threading import Thread
 
 USER_ID = "user"
 
@@ -41,6 +42,16 @@ def update_chat():
 
 with gr.Blocks() as demo:
     chatbot = gr.Chatbot()
+
+    with gr.Row():
+        with gr.Column(scale=9):
+            textbox = gr.Textbox(
+                show_label=False, placeholder="Enter text and press enter"
+            ).style(container=False)
+        with gr.Column(scale=1, min_width=0):
+            send_button = gr.Button("➤", variant="primary")
+
+    # send_button.click(send_message, textbox)
 
     demo.load(update_chat, None, chatbot, every=1)
 
