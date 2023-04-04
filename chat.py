@@ -12,7 +12,7 @@ class Chat:
     def __init__(
         self,
         prompt: str = "Assistant is a large language model trained by OpenAI.",
-        model_name: str = "gpt-3.5-turbo",
+        model_name: str = "gpt-4",
         temperature: int = 0,
     ):
         self.model_name = model_name

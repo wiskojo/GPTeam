@@ -1,9 +1,10 @@
 from typing import Any, Dict, List
 from pydantic import BaseModel
 from zmq import Socket
-
+import asyncio
 
 import json
+import aioconsole
 
 
 class Action(BaseModel):
@@ -32,31 +33,37 @@ class ActionExecutor:
         self.dealer = dealer
 
     async def execute_action(self, action: Action) -> None:
-        if action.name == "noop":
-            pass
-        elif action.name == "create_agent":
-            pass
-        elif action.name == "message_parent":
-            pass
-        elif action.name == "message_children":
-            pass
-        elif action.name == "message_user":
-            pass
-        elif action.name == "finish":
-            pass
+        task = None
+
+        if action.name == "message_user":
+            task = self._message_user(action.args)
         elif action.name == "google":
             pass
         elif action.name == "browse_website":
             pass
+        elif action.name == "write_to_file":
+            pass
         elif action.name == "read_file":
             pass
-        elif action.name == "write_file":
+        elif action.name == "append_to_file":
             pass
-        elif action.name == "append_file":
+        elif action.name == "add_memory":
             pass
-        elif action.name == "delete_file":
+        elif action.name == "recall_memory":
             pass
-        elif action.name == "write":
+        elif action.name == "finish":
             pass
         else:
             pass
+
+        if task:
+            asyncio.create_task(task)
+
+    async def _message_user(self, args: Dict[str, Any]):
+        user_message = await aioconsole.ainput(f"{args['message']}:\n")
+        await self.dealer.send_multipart(
+            [
+                self.dealer.identity,
+                user_message.encode(),
+            ]
+        )
