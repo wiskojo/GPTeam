@@ -1,4 +1,5 @@
 """Callback Handler streams to stdout on new llm token."""
+import time
 import uuid
 from typing import Any, Dict, List, Union
 
@@ -11,7 +12,9 @@ from pydantic import BaseModel, Field
 class StreamingFileCallbackHandler(AsyncCallbackHandler, BaseModel):
     """Callback handler for streaming. Only works with LLMs that support streaming."""
 
-    filename: str = Field(default_factory=lambda: f"logs/log_{uuid.uuid4()}.txt")
+    filename: str = Field(
+        default_factory=lambda: f"logs/{time.time()}_{uuid.uuid4()}.log"
+    )
 
     async def on_llm_start(
         self, serialized: Dict[str, Any], prompts: List[str], **kwargs: Any
