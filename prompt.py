@@ -34,7 +34,7 @@ Response Format:
 
 Constraints:
 
-- Maximum list size for response = 2
+- Maximum list size for response = 2. You are only allowed to execute up to this amount per message.
 
 Notes:
 

@@ -2,6 +2,8 @@ from action import parse_actions, ActionExecutor, Action
 from chat import Chat
 from zmq import Socket
 
+import asyncio
+
 
 class Agent:
     def __init__(self, name: str, prompt: str, dealer: Socket):
@@ -23,8 +25,7 @@ class Agent:
                 ]
             )
         else:
-            for action in actions:
-                await self.handle_action(action)
+            asyncio.gather(*[self.handle_action(action) for action in actions])
 
     async def handle_action(self, action: Action):
         await self.executor.execute_action(action)
