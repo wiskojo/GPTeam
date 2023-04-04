@@ -26,7 +26,7 @@ def parse_actions(outputs: str) -> List[Action]:
             )
         return actions
     except:
-        print(f"LLM Output Parsing Error:\n{outputs}")
+        return None
 
 
 class ActionExecutor:
@@ -61,13 +61,15 @@ class ActionExecutor:
             asyncio.create_task(task)
 
     async def _message_user(self, args: Dict[str, Any]):
-        user_message = await aioconsole.ainput(f"{args['message']}:\n")
-        await self.dealer.send_multipart(
-            [
-                self.dealer.identity,
-                ("Message from user:\n\n" + user_message).encode(),
-            ]
-        )
+        pass
+        # TODO: This doesn't work because there can be many overlapping messages sent to the user at the same time
+        # user_message = await aioconsole.ainput(f"{args['message']}:\n")
+        # await self.dealer.send_multipart(
+        #     [
+        #         self.dealer.identity,
+        #         ("Message from user:\n\n" + user_message).encode(),
+        #     ]
+        # )
 
     async def _google(self, args: Dict[str, Any], num_results=8):
         # TODO: Should make this async
