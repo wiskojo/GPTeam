@@ -9,18 +9,24 @@ def main():
     router.bind(f"tcp://*:{port}")
     print(f"Router is listening on port {port}")
 
-    while True:
-        # Get the sender subprocess ID, target subprocess ID, and the message
-        (
-            from_agent_id,
-            to_agent_id,
-            message,
-        ) = router.recv_multipart()[  # pylint:disable=E1136
-            :3
-        ]
+    try:
+        while True:
+            # Get the sender subprocess ID, target subprocess ID, and the message
+            (
+                from_agent_id,
+                to_agent_id,
+                message,
+            ) = router.recv_multipart()[  # pylint:disable=E1136
+                :3
+            ]
 
-        # Send the message to the target subprocess
-        router.send_multipart([to_agent_id, message])
+            # Send the message to the target subprocess
+            router.send_multipart([to_agent_id, message])
+    except KeyboardInterrupt:
+        print("Shutting down router")
+    finally:
+        router.close()
+        context.term()
 
 
 if __name__ == "__main__":
