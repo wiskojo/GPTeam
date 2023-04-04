@@ -24,13 +24,23 @@ def main():
     )
     print("Agent subprocess started")
 
+    # Start the chat UI
+    chat_process = subprocess.Popen(
+        [
+            "python",
+            "chat_ui.py",
+        ]
+    )
+    print("Chat UI started")
+
     try:
         # Wait for the agent subprocess to finish
         agent_process.wait()
     except KeyboardInterrupt:
-        print("Terminating agent and router subprocesses")
+        print("Terminating subprocesses")
         agent_process.terminate()
         router_process.terminate()
+        chat_process.terminate()
 
 
 if __name__ == "__main__":

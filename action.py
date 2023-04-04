@@ -3,7 +3,6 @@ import json
 import os
 from typing import Any, Dict, List
 
-import aioconsole
 from pydantic import BaseModel
 from zmq import Socket
 
@@ -62,15 +61,12 @@ class ActionExecutor:
             asyncio.create_task(task)
 
     async def _message_user(self, args: Dict[str, Any]):
-        pass
-        # TODO: This doesn't work because there can be many overlapping messages sent to the user at the same time
-        # user_message = await aioconsole.ainput(f"{args['message']}:\n")
-        # await self.dealer.send_multipart(
-        #     [
-        #         self.dealer.identity,
-        #         ("Message from user:\n\n" + user_message).encode(),
-        #     ]
-        # )
+        await self.dealer.send_multipart(
+            [
+                "user".encode(),
+                args["message"].encode(),
+            ]
+        )
 
     async def _google(self, args: Dict[str, Any], num_results=8):
         # TODO: Should make this async
