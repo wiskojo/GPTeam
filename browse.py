@@ -2,11 +2,11 @@ from googlesearch import search
 import requests
 from bs4 import BeautifulSoup
 from readability import Document
-import openai
 
 
 import aiohttp
 from bs4 import BeautifulSoup
+from chat import Chat
 
 
 async def scrape_text(url):
@@ -64,7 +64,7 @@ def format_hyperlinks(hyperlinks):
     return formatted_links
 
 
-def split_text(text, max_length=8192):
+def split_text(text, max_length=3000):
     paragraphs = text.split("\n")
     current_length = 0
     current_chunk = []
@@ -83,7 +83,6 @@ def split_text(text, max_length=8192):
 
 
 async def summarize_text(text, is_website=True, verbose=False):
-    # TODO: Need to make the OpenAI calls async
     if text == "":
         return "Error: No text to summarize"
 
@@ -95,59 +94,41 @@ async def summarize_text(text, is_website=True, verbose=False):
     for i, chunk in enumerate(chunks):
         if verbose:
             print("Summarizing chunk " + str(i + 1) + " / " + str(len(chunks)))
+        chat = Chat(model_name="gpt-3.5-turbo", max_tokens=300, verbose=verbose)
         if is_website:
-            messages = [
-                {
-                    "role": "user",
-                    "content": "Please summarize the following website text, do not describe the general website, but instead concisely extract the specifc information this subpage contains.: "
-                    + chunk,
-                },
-            ]
+            message = (
+                "Please summarize the following website text, do not describe the general website, but instead concisely extract the specifc information this subpage contains.: "
+                + chunk
+            )
         else:
-            messages = [
-                {
-                    "role": "user",
-                    "content": "Please summarize the following text, focusing on extracting concise and specific information: "
-                    + chunk,
-                },
-            ]
+            message = (
+                "Please summarize the following text, focusing on extracting concise and specific information: "
+                + chunk
+            )
 
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=messages,
-            max_tokens=300,
-        )
-
-        summary = response.choices[0].message.content
+        chat.add_user_message(message[:4096])
+        summary = await chat.get_chat_response()
         summaries.append(summary)
+
     if verbose:
         print("Summarized " + str(len(chunks)) + " chunks.")
 
     combined_summary = "\n".join(summaries)
 
+    chat = Chat(model_name="gpt-3.5-turbo", max_tokens=300, verbose=verbose)
+
     # Summarize the combined summary
     if is_website:
-        messages = [
-            {
-                "role": "user",
-                "content": "Please summarize the following website text, do not describe the general website, but instead concisely extract the specifc information this subpage contains.: "
-                + combined_summary,
-            },
-        ]
+        message = (
+            "Please summarize the following website text, do not describe the general website, but instead concisely extract the specifc information this subpage contains.: "
+            + combined_summary
+        )
     else:
-        messages = [
-            {
-                "role": "user",
-                "content": "Please summarize the following text, focusing on extracting concise and specific infomation: "
-                + combined_summary,
-            },
-        ]
+        message = (
+            "Please summarize the following text, focusing on extracting concise and specific infomation: "
+            + combined_summary
+        )
 
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=messages,
-        max_tokens=300,
-    )
-
-    final_summary = response.choices[0].message.content
+    chat.add_user_message(message[:4096])
+    final_summary = await chat.get_chat_response()
     return final_summary

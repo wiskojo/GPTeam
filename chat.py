@@ -6,6 +6,7 @@ from langchain.schema import (
 )
 from langchain.callbacks.base import CallbackManager
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+from typing import Optional
 
 
 class Chat:
@@ -14,6 +15,8 @@ class Chat:
         prompt: str = "Assistant is a large language model trained by OpenAI.",
         model_name: str = "gpt-4",
         temperature: int = 0,
+        verbose: bool = True,
+        max_tokens: Optional[int] = None,
     ):
         self.model_name = model_name
         self.chat = ChatOpenAI(
@@ -21,7 +24,8 @@ class Chat:
             temperature=temperature,
             streaming=True,
             callback_manager=CallbackManager([StreamingStdOutCallbackHandler()]),
-            verbose=True,
+            verbose=verbose,
+            max_tokens=max_tokens,
         )
         self.conversation = []
 

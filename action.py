@@ -58,6 +58,7 @@ class ActionExecutor:
             pass
 
         if task:
+            # TODO: Add exception handling here
             asyncio.create_task(task)
 
     async def _message_user(self, args: Dict[str, Any]):
