@@ -1,9 +1,10 @@
-from action import parse_actions, ActionExecutor, Action
-from chat import Chat
+import asyncio
+
+from aiofile import async_open
 from zmq import Socket
 
-import asyncio
-from aiofile import async_open
+from action import Action, ActionExecutor, parse_actions
+from chat import Chat
 
 
 class Agent:

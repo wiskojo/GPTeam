@@ -1,11 +1,9 @@
-from googlesearch import search
+import aiohttp
 import requests
 from bs4 import BeautifulSoup
+from googlesearch import search
 from readability import Document
 
-
-import aiohttp
-from bs4 import BeautifulSoup
 from chat import Chat
 
 

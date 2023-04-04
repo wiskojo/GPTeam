@@ -1,12 +1,9 @@
-from langchain.chat_models.openai import ChatOpenAI
-from langchain.schema import (
-    AIMessage,
-    HumanMessage,
-    SystemMessage,
-)
+from typing import Optional
+
 from langchain.callbacks.base import CallbackManager
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
-from typing import Optional
+from langchain.chat_models.openai import ChatOpenAI
+from langchain.schema import AIMessage, HumanMessage, SystemMessage
 
 
 class Chat:
