@@ -14,29 +14,35 @@ history = []
 async def listen_for_messages(dealer):
     while True:
         message = await dealer.recv_string()
-        print(f"Received: {message}")
         await message_queue.put(message)
 
 
-async def zmq_listener(identity):
-    context = zmq.asyncio.Context()
-    dealer = context.socket(zmq.DEALER)
-    dealer.identity = identity.encode()
-    dealer.connect("tcp://localhost:5555")
-
-    print(f"Subprocess {identity} is connected")
-
+async def zmq_listener():
     await listen_for_messages(dealer)
 
 
-def run_zmq_listener(identity):
-    asyncio.run(zmq_listener(identity))
+def run_zmq_listener():
+    asyncio.run(zmq_listener())
+
+
+async def zmq_send_message(message):
+    await dealer.send_multipart(
+        [
+            "OrchestratorGPT".encode(),  # TODO: Don't hardcode this
+            message.encode(),
+        ]
+    )
+
+
+def send_message(message):
+    history.append([message, None])
+    asyncio.run(zmq_send_message(message))
 
 
 def update_chat():
     while not message_queue.empty():
         message = message_queue.get_nowait()
-        history.append([message, None])
+        history.append([None, message])
     return history
 
 
@@ -51,13 +57,24 @@ with gr.Blocks() as demo:
         with gr.Column(scale=1, min_width=0):
             send_button = gr.Button("➤", variant="primary")
 
-    # send_button.click(send_message, textbox)
+    textbox.submit(send_message, textbox)
+    textbox.submit(lambda: "", None, textbox)
+
+    send_button.click(send_message, textbox)
+    send_button.click(lambda: "", None, textbox)
 
     demo.load(update_chat, None, chatbot, every=1)
 
 
 if __name__ == "__main__":
-    zmq_thread = Thread(target=run_zmq_listener, args=(USER_ID,))
+    context = zmq.asyncio.Context()
+    dealer = context.socket(zmq.DEALER)
+    dealer.identity = USER_ID.encode()
+    dealer.connect("tcp://localhost:5555")
+
+    print(f"Subprocess {USER_ID} is connected")
+
+    zmq_thread = Thread(target=run_zmq_listener)
     zmq_thread.start()
 
     demo.queue().launch()
