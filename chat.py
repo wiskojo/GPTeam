@@ -4,6 +4,8 @@ from langchain.schema import (
     HumanMessage,
     SystemMessage,
 )
+from langchain.callbacks.base import CallbackManager
+from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 
 
 class Chat:
@@ -17,6 +19,9 @@ class Chat:
         self.chat = ChatOpenAI(
             model_name=model_name,
             temperature=temperature,
+            streaming=True,
+            callback_manager=CallbackManager([StreamingStdOutCallbackHandler()]),
+            verbose=True,
         )
         self.conversation = []
 
