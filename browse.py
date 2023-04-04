@@ -82,17 +82,19 @@ def split_text(text, max_length=8192):
         yield "\n".join(current_chunk)
 
 
-async def summarize_text(text, is_website=True):
+async def summarize_text(text, is_website=True, verbose=False):
     # TODO: Need to make the OpenAI calls async
     if text == "":
         return "Error: No text to summarize"
 
-    print("Text length: " + str(len(text)) + " characters")
+    if verbose:
+        print("Text length: " + str(len(text)) + " characters")
     summaries = []
     chunks = list(split_text(text))
 
     for i, chunk in enumerate(chunks):
-        print("Summarizing chunk " + str(i + 1) + " / " + str(len(chunks)))
+        if verbose:
+            print("Summarizing chunk " + str(i + 1) + " / " + str(len(chunks)))
         if is_website:
             messages = [
                 {
@@ -118,7 +120,8 @@ async def summarize_text(text, is_website=True):
 
         summary = response.choices[0].message.content
         summaries.append(summary)
-    print("Summarized " + str(len(chunks)) + " chunks.")
+    if verbose:
+        print("Summarized " + str(len(chunks)) + " chunks.")
 
     combined_summary = "\n".join(summaries)
 
