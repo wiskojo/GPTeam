@@ -3,6 +3,7 @@ from chat import Chat
 from zmq import Socket
 
 import asyncio
+from aiofile import async_open
 
 
 class Agent:
@@ -16,6 +17,10 @@ class Agent:
     async def handle_message(self, message: str):
         self.chat.add_user_message(message)
         response = await self.chat.get_chat_response()
+
+        async with async_open(f"{self.name}_io.log", "a") as afp:
+            await afp.write(f"INPUT:\n{message}\n\nOUTPUT:\n{response}\n\n")
+
         actions = parse_actions(response)
         if actions is None:
             await self.dealer.send_multipart(
