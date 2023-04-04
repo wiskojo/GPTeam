@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from zmq import Socket
 
 import browse
+from file_io import append_to_file, read_file, write_to_file
 
 
 class Action(BaseModel):
@@ -43,13 +44,12 @@ class ActionExecutor:
             task = self._google(action.args)
         elif action.name == "browse_website":
             task = self._browse_website(action.args)
-        # TODO: Implement file IO actions
         elif action.name == "write_to_file":
-            pass
+            task = write_to_file(action.args.get("file"), action.args.get("text"))
         elif action.name == "read_file":
-            pass
+            task = read_file(action.args.get("file"))
         elif action.name == "append_to_file":
-            pass
+            task = append_to_file(action.args.get("file"), action.args.get("text"))
         # TODO: Implement finish
         elif action.name == "finish":
             pass
