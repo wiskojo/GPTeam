@@ -81,11 +81,13 @@ def split_text(text, max_length=3000):
 
 
 async def summarize_text(text, goal, is_website=True, verbose=True):
+    # If text is sufficiently short just return it
+    if len(text) < 1000:
+        return text
+
     if text == "":
         return "Error: No text to summarize"
 
-    if verbose:
-        print("Text length: " + str(len(text)) + " characters")
     summaries = []
     chunks = list(split_text(text))
 
@@ -97,12 +99,12 @@ async def summarize_text(text, goal, is_website=True, verbose=True):
 
         if is_website:
             message = (
-                "Summarize the following website text using bullet points, do not describe the general website, but instead concisely extract the specifc information this part of the page contains.: "
+                "Summarize the following website text using bullet points, do not describe the general website, but instead concisely extract the specifc information and relevant details this part of the page contains. If this part is just navigation, then mention that and don't waste time describing it.: "
                 + chunk
             )
         else:
             message = (
-                "Please summarize the following text using bullet points, focusing on extracting concise and specific information: "
+                "Summarize the following text using bullet points, focusing on extracting concise and specific information and relevant details: "
                 + chunk
             )
 
@@ -114,16 +116,13 @@ async def summarize_text(text, goal, is_website=True, verbose=True):
         summary = await chat.get_chat_response()
         summaries.append(summary)
 
-    if verbose:
-        print("Summarized " + str(len(chunks)) + " chunks.")
-
     combined_summary = "\n".join(summaries)
 
     chat = Chat(model_name="gpt-3.5-turbo", max_tokens=1000, verbose=verbose)
 
     # Summarize the combined summary
     message = (
-        "Summarize the following list of bullet points, focusing on extracting concise and specific infomation and relevant details: "
+        "Summarize the following list of bullet points by distilling it into only the important bullet points, focusing on extracting concise and specific infomation and relevant details: "
         + combined_summary
     )
 
