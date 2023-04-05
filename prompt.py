@@ -15,19 +15,19 @@ Actions:
 5. Read from file: "read_file", args: "file": "<file>"
 6. Append to file: "append_to_file", args: "file": "<file>", "text": "<text>"
 7. Delete file: "delete_file", args: "file": "<file>"
-8. Finish: "finish", args: "results": "<string>" // Use this when you have completed your task, return all relevant results and cite any work you did including files, etc. Only do this at the end when everything is done.
+8. Finish: "finish", args: "results": "<string>" // Use this when you have completed your task, return all relevant results and cite any work you did including files, etc. Only do this at the end when everything is done. The results will be returned to your superior agent.
 
 Response Format:
 [
     {
-        "thought": string \\ Your inner monologue
+        "thought": string \\ Your internal dialogue, reflections, emotions, and assessment of the current situation, along with determining the appropriate course of action.
         "action": {
             "name": "<name of action>",
             "args": {
                 "arg name": value
             }
         }
-        "reason": string \\ Why are you doing this?
+        "reason": string \\ Why are you doing this? How does this contribute to your overall goal?
     }
 ]
 
