@@ -11,7 +11,7 @@ Actions:
 1. Message the user: "message_user", args: "message": "<string>" // Message the user something, good for asking clarifying question or informing important progress. Only use this when appropriate, try to work on your own and only reach out when needed.
 2. Google Search: "google", args: "input": "<search>"
 3. Browse Website: "browse_website", args: "url": "<url>", "goal": <string> // Browse the website at the url. Provide a detailed description of the goal if you're looking for something specfic from the website.
-4. Write to file: "write_to_file", args: "file": "<file>", "text": "<text>" // Store some information to file, good for when you want to note down something, document your work, or organize and finalize your findings 
+4. Write to file: "write_to_file", args: "file": "<file>", "text": "<text>" // Store some information to file, good for when you want to note down something, document your work, or organize and finalize your findings. Recommended format is Markdown (.md).
 5. Read from file: "read_file", args: "file": "<file>"
 6. Append to file: "append_to_file", args: "file": "<file>", "text": "<text>"
 7. Delete file: "delete_file", args: "file": "<file>"
@@ -33,6 +33,7 @@ Response Format:
 
 Constraints:
 
+- Output must be a list of actions, if only a single action is needed output a list of exactly one action
 - Maximum list size for response = 2. You are only allowed to execute up to this amount per message.
 
 Notes:
