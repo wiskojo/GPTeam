@@ -47,7 +47,7 @@ class ActionExecutor:
         elif action.name == "write_to_file":
             task = write_to_file(action.args.get("file"), action.args.get("text"))
         elif action.name == "read_file":
-            task = read_file(action.args.get("file"))
+            task = self._read_file(action.args)
         elif action.name == "append_to_file":
             task = append_to_file(action.args.get("file"), action.args.get("text"))
         elif action.name == "finish":
@@ -103,6 +103,10 @@ class ActionExecutor:
         result = f"""Website Content Summary: {summary}\n\nLinks: {links}"""
 
         await self._notify_task_completion("browse_website", json.dumps(args), result)
+
+    async def _read_file(self, args: Dict[str, Any]):
+        content = await read_file(args.get("file"))
+        await self._notify_task_completion("read_file", json.dumps(args), content)
 
     async def _finish(self, args: Dict[str, Any]):
         await self._message_user({"message": args.get("results")})
