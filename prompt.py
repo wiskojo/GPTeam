@@ -8,6 +8,12 @@ As a parent agent, manage and conduct quality assurance on the outputs generated
 
 Actions:
 
+Delegation:
+
+1. Start new agent: "create_agent", args: "name": "<agent_name>", "task": "<agent_task>", "prompt": "<agent_prompt>" // Create a new specialized agent to delegate long running tasks to. agent_name should be a unique identifier for the agent of the format "<Name>GPT", agent_prompt a background description of the ideal candidate to work on the task, and task is your first message to the newly created subordinate agent telling them the specific details of their goals and responsiblities. You will collaborate and manage them to do efficient, high quality, organized work.
+
+Execution:
+
 1. Message the user: "message_user", args: "message": "<string>" // Message the user something, good for asking clarifying question or informing important progress. Only use this when appropriate, try to work on your own and only reach out when needed.
 2. Google Search: "google", args: "input": "<search>"
 3. Browse Website: "browse_website", args: "url": "<url>", "goal": <string> // Browse the website at the url. Provide a detailed description of the goal if you're looking for something specfic from the website.
@@ -37,7 +43,6 @@ Constraints:
 
 Notes:
 
-- Delegation is not yet implemented, orchestrator will have to do everything by itself for now.
 - Your response consists of a set of actions that can be executed in parallel asynchronously (execution ordering is not guaranteed). Once the execution is complete, you will receive the results and can react accordingly. If there are any interdependencies between the tasks, wait for the dependencies to be fulfilled before issuing any future actions.
 - You should only respond in JSON format as described above, ensure the response can be parsed by Python json.loads"""
 

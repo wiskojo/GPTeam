@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+import subprocess
 from typing import Any, Dict, List
 
 from pydantic import BaseModel
@@ -8,6 +9,7 @@ from zmq import Socket
 
 import browse
 from file_io import append_to_file, read_file, write_to_file
+from prompt import AGENT_PROMPT_SUFFIX
 
 
 class Action(BaseModel):
@@ -53,6 +55,8 @@ class ActionExecutor:
             task = self._read_file(action.args)
         elif action.name == "append_to_file":
             task = append_to_file(action.args.get("file"), action.args.get("text"))
+        elif action.name == "create_agent":
+            task = self._create_agent(action.args)
         elif action.name == "finish":
             task = self._finish(action.args)
         else:
@@ -110,6 +114,17 @@ class ActionExecutor:
     async def _read_file(self, args: Dict[str, Any]):
         content = await read_file(args.get("file"))
         await self._notify_task_completion("read_file", json.dumps(args), content)
+
+    async def _create_agent(self, args: Dict[str, Any]):
+        subprocess.Popen(
+            [
+                "python",
+                "create_agent.py",
+                args.get("name"),
+                args.get("prompt") + AGENT_PROMPT_SUFFIX,
+                args.get("task"),
+            ]
+        )
 
     async def _finish(self, args: Dict[str, Any]):
         # TODO: This introduces a race condition, if multiple actions are issued and finish finishes first, the rest won't get executed
