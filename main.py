@@ -1,7 +1,7 @@
 import subprocess
 import time
 
-from prompt import ORCHESTRATOR_PROMPT
+from prompt import LEADER_PROMPT
 
 
 def main():
@@ -17,8 +17,8 @@ def main():
         [
             "python",
             "create_agent.py",
-            "OrchestratorGPT",
-            ORCHESTRATOR_PROMPT,
+            "LeaderGPT",
+            LEADER_PROMPT,
             "plan a budget vacation for a family of 4 to France, June 2023, Budget 5k, 1 week vacay",
         ]
     )

@@ -28,7 +28,7 @@ def run_zmq_listener():
 async def zmq_send_message(message):
     await dealer.send_multipart(
         [
-            "OrchestratorGPT".encode(),  # TODO: Don't hardcode this
+            "LeaderGPT".encode(),  # TODO: Don't hardcode this
             message.encode(),
         ]
     )
