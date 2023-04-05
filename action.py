@@ -109,6 +109,5 @@ class ActionExecutor:
         )
 
     async def _finish(self, args: Dict[str, Any]):
-        # TODO: This doesn't work
-        await self._message_user(args.get("results"))
+        await self._message_user({"message": args.get("results")})
         os._exit(0)  # pylint:disable=W0212
