@@ -129,7 +129,9 @@ async def summarize_text(text, goal, is_website=True, verbose=True):
 
     message = message[:4000]
     if goal:
-        message += "\n\nMake sure to extract all relevant info towards this objective: {goal}"
+        message += (
+            "\n\nMake sure to extract all relevant info towards this objective: {goal}"
+        )
 
     chat.add_user_message(message)
     final_summary = await chat.get_chat_response()

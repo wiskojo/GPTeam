@@ -26,7 +26,8 @@ Response Format:
             "args": {
                 "arg name": value
             }
-        }
+        },
+        "reason": string \\ Why are you doing this?
     }
 ]
 

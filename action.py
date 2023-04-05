@@ -60,6 +60,14 @@ class ActionExecutor:
             # TODO: Add exception handling here
             asyncio.create_task(task)
 
+    async def _notify_task_completion(self, task_name, task_args, results):
+        await self.dealer.send_multipart(
+            [
+                self.dealer.identity,
+                f'Finished task "{task_name}" with arguments "{task_args}". Here are the results:\n\n{results}'.encode(),
+            ]
+        )
+
     async def _message_user(self, args: Dict[str, Any]):
         await self.dealer.send_multipart(
             [
@@ -71,15 +79,8 @@ class ActionExecutor:
     async def _google(self, args: Dict[str, Any], num_results=8):
         # TODO: Should make this async
         search_results = list(browse.search(args["input"], num_results=num_results))
-        # TODO: Generalize the return structure, and add more info like action, args, history?, etc.
-        await self.dealer.send_multipart(
-            [
-                self.dealer.identity,
-                (
-                    "Result from google:\n\n"
-                    + json.dumps(search_results, ensure_ascii=False)
-                ).encode(),
-            ]
+        await self._notify_task_completion(
+            "google", json.dumps(args), json.dumps(search_results, ensure_ascii=False)
         )
 
     async def _browse_website(self, args: Dict[str, Any]):
@@ -101,12 +102,7 @@ class ActionExecutor:
 
         result = f"""Website Content Summary: {summary}\n\nLinks: {links}"""
 
-        await self.dealer.send_multipart(
-            [
-                self.dealer.identity,
-                ("Result from browse_website:\n\n" + result).encode(),
-            ]
-        )
+        await self._notify_task_completion("browse_website", json.dumps(args), result)
 
     async def _finish(self, args: Dict[str, Any]):
         await self._message_user({"message": args.get("results")})
