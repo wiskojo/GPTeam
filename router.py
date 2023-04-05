@@ -22,6 +22,12 @@ def main():
 
             # Send the message to the target subprocess
             router.send_multipart([to_agent_id, message])
+
+            if from_agent_id != to_agent_id:
+                print(
+                    f'[{from_agent_id.decode("utf-8")} -> {to_agent_id.decode("utf-8")}]: {message.decode("utf-8")}'
+                )
+
     except KeyboardInterrupt:
         print("Shutting down router")
     finally:
