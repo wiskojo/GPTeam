@@ -36,7 +36,7 @@ def main():
     try:
         # Wait for the agent subprocess to finish
         agent_process.wait()
-    except KeyboardInterrupt:
+    finally:
         print("Terminating subprocesses")
         agent_process.terminate()
         router_process.terminate()
