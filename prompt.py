@@ -10,7 +10,7 @@ Actions:
 
 1. Message the user: "message_user", args: "message": "<string>" // Message the user something, good for asking clarifying question or informing important progress. Only use this when appropriate, try to work on your own and only reach out when needed.
 2. Google Search: "google", args: "input": "<search>"
-3. Browse Website: "browse_website", args: "url": "<url>"
+3. Browse Website: "browse_website", args: "url": "<url>", "goal": <string> // Browse the website at the url. Provide a description of the goal if you're looking for something specfic from the website.
 4. Write to file: "write_to_file", args: "file": "<file>", "text": "<text>" // Store some information to file, good for when you want to note down something, document your work, or organize and finalize your findings 
 5. Read from file: "read_file", args: "file": "<file>"
 6. Append to file: "append_to_file", args: "file": "<file>", "text": "<text>"

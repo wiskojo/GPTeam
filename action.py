@@ -83,16 +83,16 @@ class ActionExecutor:
         )
 
     async def _browse_website(self, args: Dict[str, Any]):
-        async def get_text_summary(url):
+        async def get_text_summary(url, goal=None):
             text = await browse.scrape_text(url)
-            summary = await browse.summarize_text(text)
+            summary = await browse.summarize_text(text, goal)
             return """ "Result" : """ + summary
 
         async def get_hyperlinks(url):
             link_list = await browse.scrape_links(url)
             return link_list
 
-        summary = await get_text_summary(args["url"])
+        summary = await get_text_summary(args["url"], args["goal"])
         links = await get_hyperlinks(args["url"])
 
         # Limit links to 5
@@ -109,5 +109,6 @@ class ActionExecutor:
         )
 
     async def _finish(self, args: Dict[str, Any]):
+        # TODO: This doesn't work
         await self._message_user(args.get("results"))
         os._exit(0)  # pylint:disable=W0212

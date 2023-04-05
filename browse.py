@@ -80,7 +80,7 @@ def split_text(text, max_length=3000):
         yield "\n".join(current_chunk)
 
 
-async def summarize_text(text, is_website=True, verbose=False):
+async def summarize_text(text, goal, is_website=True, verbose=True):
     if text == "":
         return "Error: No text to summarize"
 
@@ -92,19 +92,25 @@ async def summarize_text(text, is_website=True, verbose=False):
     for i, chunk in enumerate(chunks):
         if verbose:
             print("Summarizing chunk " + str(i + 1) + " / " + str(len(chunks)))
+
         chat = Chat(model_name="gpt-3.5-turbo", max_tokens=300, verbose=verbose)
+
         if is_website:
             message = (
-                "Please summarize the following website text, do not describe the general website, but instead concisely extract the specifc information this subpage contains.: "
+                "Summarize the following website text using bullet points, do not describe the general website, but instead concisely extract the specifc information this part of the page contains.: "
                 + chunk
             )
         else:
             message = (
-                "Please summarize the following text, focusing on extracting concise and specific information: "
+                "Please summarize the following text using bullet points, focusing on extracting concise and specific information: "
                 + chunk
             )
 
-        chat.add_user_message(message[:4096])
+        message = message[:4000]
+        if goal:
+            message += "\n\nMake sure to extract all relevant info towards this objective: {goal}"
+
+        chat.add_user_message(message)
         summary = await chat.get_chat_response()
         summaries.append(summary)
 
@@ -113,20 +119,18 @@ async def summarize_text(text, is_website=True, verbose=False):
 
     combined_summary = "\n".join(summaries)
 
-    chat = Chat(model_name="gpt-3.5-turbo", max_tokens=300, verbose=verbose)
+    chat = Chat(model_name="gpt-3.5-turbo", max_tokens=1000, verbose=verbose)
 
     # Summarize the combined summary
-    if is_website:
-        message = (
-            "Please summarize the following website text, do not describe the general website, but instead concisely extract the specifc information this subpage contains.: "
-            + combined_summary
-        )
-    else:
-        message = (
-            "Please summarize the following text, focusing on extracting concise and specific infomation: "
-            + combined_summary
-        )
+    message = (
+        "Summarize the following list of bullet points, focusing on extracting concise and specific infomation and relevant details: "
+        + combined_summary
+    )
 
-    chat.add_user_message(message[:4096])
+    message = message[:4000]
+    if goal:
+        message += "\n\nMake sure to extract all relevant info towards this objective: {goal}"
+
+    chat.add_user_message(message)
     final_summary = await chat.get_chat_response()
     return final_summary
