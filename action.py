@@ -87,7 +87,7 @@ class ActionExecutor:
         async def get_text_summary(url, goal=None):
             text = await browse.scrape_text(url)
             summary = await browse.summarize_text(text, goal)
-            return """ "Result" : """ + summary
+            return summary
 
         async def get_hyperlinks(url):
             link_list = await browse.scrape_links(url)
@@ -109,5 +109,6 @@ class ActionExecutor:
         await self._notify_task_completion("read_file", json.dumps(args), content)
 
     async def _finish(self, args: Dict[str, Any]):
+        # TODO: This introduces a race condition, if multiple actions are issued and finish finishes first, the rest won't get executed
         await self._message_user({"message": args.get("results")})
         os._exit(0)  # pylint:disable=W0212

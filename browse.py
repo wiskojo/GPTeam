@@ -1,3 +1,5 @@
+import asyncio
+
 import aiohttp
 import requests
 from bs4 import BeautifulSoup
@@ -88,13 +90,10 @@ async def summarize_text(text, goal, is_website=True, verbose=True):
     if text == "":
         return "Error: No text to summarize"
 
-    summaries = []
+    get_summaries = []
     chunks = list(split_text(text))
 
-    for i, chunk in enumerate(chunks):
-        if verbose:
-            print("Summarizing chunk " + str(i + 1) + " / " + str(len(chunks)))
-
+    for chunk in chunks:
         chat = Chat(model_name="gpt-3.5-turbo", max_tokens=300, verbose=verbose)
 
         if is_website:
@@ -110,11 +109,13 @@ async def summarize_text(text, goal, is_website=True, verbose=True):
 
         message = message[:4000]
         if goal:
-            message += "\n\nMake sure to extract all relevant info towards this objective: {goal}"
+            message += f"\n\nMake sure to extract all relevant info towards this objective: {goal}"
 
         chat.add_user_message(message)
-        summary = await chat.get_chat_response()
-        summaries.append(summary)
+        get_sumary = chat.get_chat_response()
+        get_summaries.append(get_sumary)
+
+    summaries = await asyncio.gather(*get_summaries)
 
     combined_summary = "\n".join(summaries)
 
@@ -129,7 +130,7 @@ async def summarize_text(text, goal, is_website=True, verbose=True):
     message = message[:4000]
     if goal:
         message += (
-            "\n\nMake sure to extract all relevant info towards this objective: {goal}"
+            f"\n\nMake sure to extract all relevant info towards this objective: {goal}"
         )
 
     chat.add_user_message(message)
