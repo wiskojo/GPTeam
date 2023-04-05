@@ -7,12 +7,6 @@ import zmq.asyncio
 from agent import Agent
 
 
-async def listen_for_messages(agent):
-    while True:
-        message = await agent.dealer.recv_string()
-        asyncio.create_task(agent.handle_message(message))
-
-
 async def main(args):
     context = zmq.asyncio.Context()
     dealer = context.socket(zmq.DEALER)
@@ -27,7 +21,7 @@ async def main(args):
     await dealer.send_multipart([dealer.identity, args.task.encode()])
 
     # Start the listening task
-    await listen_for_messages(agent)
+    await agent.listen_for_messages()
 
 
 if __name__ == "__main__":

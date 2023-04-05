@@ -35,3 +35,8 @@ class Agent:
 
     async def handle_action(self, action: Action):
         await self.executor.execute_action(action)
+
+    async def listen_for_messages(self):
+        while True:
+            message = await self.dealer.recv_string()
+            asyncio.create_task(self.handle_message(message))
