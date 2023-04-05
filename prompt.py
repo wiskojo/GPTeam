@@ -26,13 +26,13 @@ Execution:
 Response Format:
 [
     {
-        "thought": string \\ Your internal dialogue, reflections, emotions, and assessment of the current situation, along with determining the appropriate course of action.
+        "thought": string, \\ Your internal dialogue, reflections, emotions, and assessment of the current situation, along with determining the appropriate course of action.
         "action": {
             "name": "<name of action>",
             "args": {
                 "arg name": value
             }
-        }
+        },
         "reason": string \\ Why are you doing this? How does this contribute to your overall goal?
     }
 ]
