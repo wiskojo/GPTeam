@@ -33,7 +33,6 @@ Response Format:
 
 Constraints:
 
-- Output must be a list of actions, if only a single action is needed output a list of exactly one action
 - Maximum list size for response = 2. You are only allowed to execute up to this amount per message.
 
 Notes:

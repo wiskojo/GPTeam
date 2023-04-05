@@ -18,6 +18,9 @@ class Action(BaseModel):
 def parse_actions(outputs: str) -> List[Action]:
     try:
         parsed = json.loads(outputs)
+        # Sometimes for single action put it into a list to reduce parsing error
+        if isinstance(parsed, dict):
+            parsed = [parsed]
         actions = []
         for output in parsed:
             actions.append(
