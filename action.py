@@ -56,12 +56,23 @@ class ActionExecutor:
         elif action.name == "finish":
             task = self._finish(action.args)
         else:
-            # TODO: Currently treating unrecognized actions as "no-op"
-            pass
+            await self.agent.dealer.send_multipart(
+                [
+                    self.agent.dealer.identity,
+                    f'The action "{action.name}" is not among the available options. Please attempt a different action.'.encode(),
+                ]
+            )
 
         if task:
-            # TODO: Add exception handling here
-            asyncio.create_task(task)
+            try:
+                asyncio.create_task(task)
+            except Exception as e:
+                await self.agent.dealer.send_multipart(
+                    [
+                        self.agent.dealer.identity,
+                        f'Failed task "{action.name}" with arguments "{json.dumps(action.args)}". Here is the error:\n\n{e}'.encode(),
+                    ]
+                )
 
     async def _notify_task_completion(self, task_name, task_args, results):
         await self.agent.dealer.send_multipart(
@@ -86,7 +97,7 @@ class ActionExecutor:
                 ]
             )
             return
-            
+
         await self.agent.dealer.send_multipart(
             [
                 args["to"].encode(),
