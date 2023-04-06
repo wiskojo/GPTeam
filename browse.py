@@ -82,7 +82,7 @@ def split_text(text, max_length=3000):
         yield "\n".join(current_chunk)
 
 
-async def summarize_text(text, goal, is_website=True, verbose=True):
+async def summarize_text(text, goal, is_website=True, verbose=False):
     # If text is sufficiently short just return it
     if len(text) < 1000:
         return text

@@ -20,6 +20,7 @@ def main():
             "LeaderGPT",
             LEADER_PROMPT,
             "plan a budget vacation for a family of 4 to France, June 2023, Budget 5k, 1 week vacay",
+            "user",
         ]
     )
     print("Agent subprocess started")

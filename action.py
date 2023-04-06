@@ -5,7 +5,6 @@ import subprocess
 from typing import Any, Dict, List
 
 from pydantic import BaseModel
-from zmq import Socket
 
 import browse
 from file_io import append_to_file, read_file, write_to_file
@@ -37,14 +36,14 @@ def parse_actions(outputs: str) -> List[Action]:
 
 
 class ActionExecutor:
-    def __init__(self, dealer: Socket):
-        self.dealer = dealer
+    def __init__(self, agent):
+        self.agent = agent
 
     async def execute_action(self, action: Action) -> None:
         task = None
 
-        if action.name == "message_user":
-            task = self._message_user(action.args)
+        if action.name == "message":
+            task = self._message(action.args)
         elif action.name == "google":
             task = self._google(action.args)
         elif action.name == "browse_website":
@@ -68,18 +67,22 @@ class ActionExecutor:
             asyncio.create_task(task)
 
     async def _notify_task_completion(self, task_name, task_args, results):
-        await self.dealer.send_multipart(
+        await self.agent.dealer.send_multipart(
             [
-                self.dealer.identity,
+                self.agent.dealer.identity,
                 f'Finished task "{task_name}" with arguments "{task_args}". Here are the results:\n\n{results}'.encode(),
             ]
         )
 
-    async def _message_user(self, args: Dict[str, Any]):
-        await self.dealer.send_multipart(
+    async def _message(self, args: Dict[str, Any]):
+        if args["to"] != "user":
+            message = f"(Message from {self.agent.name}) {args['message']}"
+        else:
+            message = args["message"]
+        await self.agent.dealer.send_multipart(
             [
-                "user".encode(),
-                args["message"].encode(),
+                args["to"].encode(),
+                message.encode(),
             ]
         )
 
@@ -123,10 +126,13 @@ class ActionExecutor:
                 args.get("name"),
                 args.get("prompt") + AGENT_PROMPT_SUFFIX,
                 args.get("task"),
+                self.agent.name,
             ]
         )
+        self.agent.subordinates.add(args.get("name"))
 
     async def _finish(self, args: Dict[str, Any]):
         # TODO: This introduces a race condition, if multiple actions are issued and finish finishes first, the rest won't get executed
-        await self._message_user({"message": args.get("results")})
+        await self._message({"to": self.agent.superior, "message": args.get("results")})
+        # TODO: Somehow need to remove from superior's subordinates list
         os._exit(0)  # pylint:disable=W0212

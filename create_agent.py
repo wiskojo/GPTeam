@@ -7,6 +7,14 @@ import zmq.asyncio
 from agent import Agent
 
 
+async def listen_for_messages(agent):
+    while True:
+        message = await agent.dealer.recv_string()
+        await agent.handle_message(
+            message
+        )  # TODO: If you use asyncio.create_task here and not synchronously handle the message queue, many race conditions will cause duplicate work.
+
+
 async def main(args):
     context = zmq.asyncio.Context()
     dealer = context.socket(zmq.DEALER)
@@ -15,13 +23,15 @@ async def main(args):
 
     print(f"Agent {args.agent_id} is connected")
 
-    agent = Agent(name=args.agent_id, prompt=args.prompt, dealer=dealer)
+    agent = Agent(
+        name=args.agent_id, prompt=args.prompt, dealer=dealer, superior=args.superior
+    )
 
     # Send the initial message based on the command line argument
     await dealer.send_multipart([dealer.identity, args.task.encode()])
 
     # Start the listening task
-    await agent.listen_for_messages()
+    await listen_for_messages(agent)
 
 
 if __name__ == "__main__":
@@ -36,6 +46,11 @@ if __name__ == "__main__":
         "task",
         type=str,
         help="Initial message to send to the agent containing the task",
+    )
+    parser.add_argument(
+        "superior",
+        type=str,
+        help="Name of the superior agent/user",
     )
 
     args = parser.parse_args()
