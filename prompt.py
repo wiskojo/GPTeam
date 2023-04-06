@@ -10,7 +10,7 @@ Actions:
 
 Delegation:
 
-1. Start new agent: "create_agent", args: "name": "<agent_name>", "task": "<agent_task>", "prompt": "<agent_prompt>" // Create a new specialized agent to delegate long running tasks to. agent_name should be a unique identifier for the agent of the format "<Name>GPT", agent_prompt a background description of the ideal candidate to work on the task, and task is your first message to the newly created subordinate agent telling them the specific details of their goals and responsiblities. You will collaborate and manage them to do efficient, high quality, organized work.
+1. Start new agent: "create_agent", args: "name": "<agent_name>", "task": "<agent_task>", "prompt": "<agent_prompt>" // Create a new specialized agent to delegate long running tasks to. agent_name should be a unique identifier for the agent of the format "<Name>GPT", agent_prompt a background description of the ideal candidate to work on the task, and task is your first message to the newly created subordinate agent telling them the specific details of their goals and responsiblities (the task should precisely describe what the expected output is - format should be "<task description>\nOutput: <precise output description>"). You will collaborate and manage them to do efficient, high quality, organized work.
 
 Execution:
 
