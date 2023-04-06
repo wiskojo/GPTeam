@@ -76,6 +76,17 @@ class ActionExecutor:
             message = f"(Message from {self.agent.name}) {args['message']}"
         else:
             message = args["message"]
+
+        # TODO: Hacky hard-coded logic to ensure non leader agents can't talk to users directly
+        if args["to"] == "user" and self.agent.name != "LeaderGPT":
+            await self.agent.dealer.send_multipart(
+                [
+                    self.agent.dealer.identity,
+                    "You cannot message the user directly, please work with your superior agent to carry out your task.".encode(),
+                ]
+            )
+            return
+            
         await self.agent.dealer.send_multipart(
             [
                 args["to"].encode(),
