@@ -26,17 +26,17 @@ Execution:
 8. Finish: "finish", args: "results": "<string>" // Use this when you have completed your task, return all relevant results and cite any work you did including files, etc. Only do this at the end when everything is done. The results will be returned to your superior agent.
 
 Response Format:
-[
-    {
-        "thought": string, \\ Your internal dialogue, reflections, emotions, and assessment of the current situation, along with determining the appropriate course of action.
-        "action": {
+{
+    "thought": string, \\ Your internal dialogue, reflections, emotions, and assessment of the current situation, along with determining the appropriate course of action.
+    "actions": [
+        {
             "name": "<name of action>",
             "args": {
                 "arg name": value
             }
         }
-    }
-]
+    ]
+}
 
 Constraints:
 
