@@ -149,7 +149,7 @@ class ActionExecutor:
                 "create_agent.py",
                 args.get("name"),
                 args.get("prompt") + AGENT_PROMPT_SUFFIX,
-                args.get("task"),
+                f"(Message from {self.agent.name}) {args.get('message')}",
                 self.agent.name,
             ]
         )
