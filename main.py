@@ -19,7 +19,7 @@ def main():
             "create_agent.py",
             "LeaderGPT",
             LEADER_PROMPT,
-            "plan a budget vacation for a family of 4 to France, June 2023, Budget 5k, 1 week vacay",
+            "Help me and my family of 3 plan a vacation to France for next month with a budget of 5k USD",
             "user",
         ]
     )

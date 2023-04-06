@@ -49,11 +49,11 @@ class ActionExecutor:
         elif action.name == "browse_website":
             task = self._browse_website(action.args)
         elif action.name == "write_to_file":
-            task = write_to_file(action.args.get("file"), action.args.get("text"))
+            task = self._write_to_file(action.args)
         elif action.name == "read_file":
             task = self._read_file(action.args)
         elif action.name == "append_to_file":
-            task = append_to_file(action.args.get("file"), action.args.get("text"))
+            task = self._append_to_file(action.args)
         elif action.name == "create_agent":
             task = self._create_agent(action.args)
         elif action.name == "finish":
@@ -118,6 +118,22 @@ class ActionExecutor:
         content = await read_file(args.get("file"))
         await self._notify_task_completion("read_file", json.dumps(args), content)
 
+    async def _write_to_file(self, args: Dict[str, Any]):
+        await write_to_file(args.get("file"), args.get("text"))
+        await self._notify_task_completion(
+            "write_to_file",
+            json.dumps(args),
+            f"File {args.get('file')} successfully written to.",
+        )
+
+    async def _append_to_file(self, args: Dict[str, Any]):
+        await append_to_file(args.get("file"), args.get("text"))
+        await self._notify_task_completion(
+            "append_to_file",
+            json.dumps(args),
+            f"File {args.get('file')} successfully appended to.",
+        )
+
     async def _create_agent(self, args: Dict[str, Any]):
         subprocess.Popen(
             [
@@ -130,6 +146,11 @@ class ActionExecutor:
             ]
         )
         self.agent.subordinates.add(args.get("name"))
+        await self._notify_task_completion(
+            "create_agent",
+            json.dumps(args),
+            f"Agent {args.get('name')} successfully created.",
+        )
 
     async def _finish(self, args: Dict[str, Any]):
         # TODO: This introduces a race condition, if multiple actions are issued and finish finishes first, the rest won't get executed
