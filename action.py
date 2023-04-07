@@ -64,15 +64,15 @@ class ActionExecutor:
             )
 
         if task:
-            try:
-                asyncio.create_task(task)
-            except Exception as e:
-                await self.agent.dealer.send_multipart(
-                    [
-                        self.agent.dealer.identity,
-                        f'Failed task "{action.name}" with arguments "{json.dumps(action.args)}". Here is the error:\n\n{e}'.encode(),
-                    ]
-                )
+            results = await asyncio.gather(task, return_exceptions=True)
+            for result in results:
+                if isinstance(result, Exception):
+                    await self.agent.dealer.send_multipart(
+                        [
+                            self.agent.dealer.identity,
+                            f'Failed task "{action.name}" with arguments "{json.dumps(action.args)}". Here is the error:\n\n{result}'.encode(),
+                        ]
+                    )
 
     async def _notify_task_completion(self, task_name, task_args, results):
         await self.agent.dealer.send_multipart(
