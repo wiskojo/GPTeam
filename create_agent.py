@@ -28,7 +28,8 @@ async def main(args):
     )
 
     # Send the initial message based on the command line argument
-    await dealer.send_multipart([dealer.identity, args.task.encode()])
+    if args.task:
+        await dealer.send_multipart([dealer.identity, args.task.encode()])
 
     # Start the listening task
     await listen_for_messages(agent)
@@ -45,6 +46,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "task",
         type=str,
+        nargs="?",
         help="Initial message to send to the agent containing the task",
     )
     parser.add_argument(

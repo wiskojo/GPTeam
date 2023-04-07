@@ -8,7 +8,12 @@ import zmq.asyncio
 USER_ID = "user"
 
 message_queue = asyncio.Queue()
-history = []
+history = [
+    [
+        None,
+        "Hi there! I'm here to help you with any tasks you need assistance with. Just let me know what you'd like me to do, and I'll be more than happy to help!",
+    ]
+]
 
 
 async def listen_for_messages(dealer):
