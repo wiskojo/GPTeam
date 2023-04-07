@@ -4,7 +4,7 @@ from colorama import init as colorama_init
 
 colorama_init(autoreset=True)
 
-COLORS = list(dict(Fore.__dict__.items()).values())
+COLORS = [v for k, v in Fore.__dict__.items() if k not in ("BLACK", "WHITE", "RESET")]
 
 
 def main():
