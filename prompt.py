@@ -18,7 +18,7 @@ Execution:
 
 1. Send message: "message", args: "to": "<name of the agent to send message>", "message": "<string>" // Send a message to another agent, good for asking questions and coordinating work. If you are LeaderGPT, you can also message the user ("to" should be "user") but only use this when appropriate and necessary, try to work on your own and only reach out when needed. If you are not LeaderGPT you CANNOT message user directly, talk to your superior agent if you have questions. The chain of command must be respected.
 2. Google Search: "google", args: "input": "<search>"
-3. Browse Website: "browse_website", args: "url": "<url>", "goal": <string> // Browse the website at the url. Provide a detailed description of the goal if you're looking for something specfic from the website.
+3. Browse Website: "browse_website", args: "url": "<url>", "question": <string> // Browse the website at the url. Provide a detailed question specifying exactly what you're looking for from the website.
 4. Write to file: "write_to_file", args: "file": "<file>", "text": "<text>" // Store some information to file, good for when you want to note down something, document your work, or organize and finalize your findings. Recommended format is Markdown (.md). You must always cite your sources when possible.
 5. Read from file: "read_file", args: "file": "<file>"
 6. Append to file: "append_to_file", args: "file": "<file>", "text": "<text>"

@@ -4,6 +4,7 @@ import os
 import subprocess
 from typing import Any, Dict, List
 
+from duckduckgo_search import ddg
 from pydantic import BaseModel
 
 import browse
@@ -20,7 +21,7 @@ def parse_actions(outputs: str) -> List[Action]:
     try:
         parsed = json.loads(outputs)
         actions = []
-        for output in parsed["actions"]:
+        for output in parsed.get("actions", []):
             actions.append(
                 Action(
                     name=output.get("name"),
@@ -107,22 +108,26 @@ class ActionExecutor:
 
     async def _google(self, args: Dict[str, Any], num_results=8):
         # TODO: Should make this async
-        search_results = list(browse.search(args["input"], num_results=num_results))
+        search_results = []
+        for j in ddg(args.get("input"), max_results=num_results):
+            search_results.append(j)
         await self._notify_task_completion(
-            "google", json.dumps(args), json.dumps(search_results, ensure_ascii=False)
+            "google",
+            json.dumps(args),
+            json.dumps(search_results, ensure_ascii=False, indent=4),
         )
 
     async def _browse_website(self, args: Dict[str, Any]):
-        async def get_text_summary(url, goal=None):
+        async def get_text_summary(url, question):
             text = await browse.scrape_text(url)
-            summary = await browse.summarize_text(text, goal)
+            summary = await browse.summarize_text(text, question)
             return summary
 
         async def get_hyperlinks(url):
             link_list = await browse.scrape_links(url)
             return link_list
 
-        summary = await get_text_summary(args["url"], args["goal"])
+        summary = await get_text_summary(args["url"], args["question"])
         links = await get_hyperlinks(args["url"])
 
         # Limit links to 5
@@ -172,7 +177,8 @@ class ActionExecutor:
         )
 
     async def _finish(self, args: Dict[str, Any]):
-        # TODO: This introduces a race condition, if multiple actions are issued and finish finishes first, the rest won't get executed
         await self._message({"to": self.agent.superior, "message": args.get("results")})
         # TODO: Somehow need to remove from superior's subordinates list
+        # TODO: Hacky way to get around race condition where multiple actions are issued and finish finishes first, the rest won't get executed
+        await asyncio.sleep(5)
         os._exit(0)  # pylint:disable=W0212

@@ -4,36 +4,44 @@ import aiohttp
 import requests
 from bs4 import BeautifulSoup
 from googlesearch import search
+from playwright.async_api import async_playwright
 from readability import Document
 
 from chat import Chat
 
 
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"
-}
-
-
 async def scrape_text(url):
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url, headers=HEADERS) as response:
-            # Check if the response contains an HTTP error
-            if response.status >= 400:
-                return "Error: HTTP " + str(response.status) + " error"
+    async with async_playwright() as p:
+        browser = await p.chromium.launch()
 
-            text = await response.text()
+        # Set up a more complete user agent and viewport size
+        context = await browser.new_context(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36",
+            viewport={"width": 1280, "height": 800},
+        )
 
-    soup = BeautifulSoup(text, "html.parser")
+        page = await context.new_page()
 
-    for script in soup(["script", "style"]):
-        script.extract()
+        try:
+            await page.goto(url, wait_until="networkidle")
 
-    text = soup.get_text()
-    lines = (line.strip() for line in text.splitlines())
-    chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-    text = "\n".join(chunk for chunk in chunks if chunk)
+            # Add delay or wait for specific elements if necessary
+            await asyncio.sleep(2)
 
-    return text
+            content = await page.content()
+            soup = BeautifulSoup(content, "html.parser")
+
+            for script in soup(["script", "style"]):
+                script.extract()
+
+            text = soup.get_text()
+            lines = (line.strip() for line in text.splitlines())
+            chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+            text = "\n".join(chunk for chunk in chunks if chunk)
+
+            return text
+        finally:
+            await browser.close()
 
 
 async def scrape_links(url):
@@ -87,12 +95,12 @@ def split_text(text, max_length=3000):
         yield "\n".join(current_chunk)
 
 
-async def summarize_text(text, goal, is_website=True, verbose=False):
-    # If text is sufficiently short just return it
-    if len(text) < 1000:
-        return text
+def create_message(chunk, question):
+    return f'"""{chunk}""" Using the above text, please answer the following question: "{question}" -- if the question cannot be answered using the text, please summarize the text.'
 
-    if text == "":
+
+async def summarize_text(text, question, verbose=False):
+    if not text:
         return "Error: No text to summarize"
 
     get_summaries = []
@@ -100,43 +108,17 @@ async def summarize_text(text, goal, is_website=True, verbose=False):
 
     for chunk in chunks:
         chat = Chat(model_name="gpt-3.5-turbo", max_tokens=300, verbose=verbose)
-
-        if is_website:
-            message = (
-                "Summarize the following website text using bullet points, do not describe the general website, but instead concisely extract the specifc information and relevant details this part of the page contains. If this part is just navigation, then mention that and don't waste time describing it.: "
-                + chunk
-            )
-        else:
-            message = (
-                "Summarize the following text using bullet points, focusing on extracting concise and specific information and relevant details: "
-                + chunk
-            )
-
-        message = message[:4000]
-        if goal:
-            message += f"\n\nMake sure to extract all relevant info towards this objective: {goal}"
+        message = create_message(chunk, question)
 
         chat.add_user_message(message)
         get_sumary = chat.get_chat_response()
         get_summaries.append(get_sumary)
 
     summaries = await asyncio.gather(*get_summaries)
-
     combined_summary = "\n".join(summaries)
 
     chat = Chat(model_name="gpt-3.5-turbo", max_tokens=1000, verbose=verbose)
-
-    # Summarize the combined summary
-    message = (
-        "Summarize the following list of bullet points by distilling it into only the important bullet points, focusing on extracting concise and specific infomation and relevant details: "
-        + combined_summary
-    )
-
-    message = message[:4000]
-    if goal:
-        message += (
-            f"\n\nMake sure to extract all relevant info towards this objective: {goal}"
-        )
+    message = create_message(combined_summary, question)
 
     chat.add_user_message(message)
     final_summary = await chat.get_chat_response()
