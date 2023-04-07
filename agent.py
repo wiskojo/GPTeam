@@ -24,7 +24,7 @@ class Agent:
         self.chat.add_user_message(message)
         response = await self.chat.get_chat_response()
 
-        async with async_open(f"logs/{self.name}.log", "a") as afp:
+        async with async_open(f"logs/{self.name}.txt", "a") as afp:
             await afp.write(f"Input:\n{message}\n\nOutput:\n{response}\n\n")
 
         actions = parse_actions(response)
