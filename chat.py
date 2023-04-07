@@ -43,6 +43,7 @@ class Chat:
             callback_manager=AsyncCallbackManager([StreamingFileCallbackHandler()]),
             verbose=self.verbose,
             max_tokens=self.max_tokens,
+            request_timeout=120,  # TODO: Maybe too high?
         )
 
     async def get_chat_response(self):
