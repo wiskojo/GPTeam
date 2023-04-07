@@ -23,7 +23,7 @@ async def scrape_text(url):
         page = await context.new_page()
 
         try:
-            await page.goto(url, wait_until="networkidle")
+            await page.goto(url)
 
             # Add delay or wait for specific elements if necessary
             await asyncio.sleep(2)
