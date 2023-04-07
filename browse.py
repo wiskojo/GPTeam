@@ -99,7 +99,7 @@ def create_message(chunk, question):
     return f'"""{chunk}""" Using the above text, please answer the following question: "{question}" -- if the question cannot be answered using the text, please summarize the text.'
 
 
-async def summarize_text(text, question, verbose=False):
+async def summarize_text(text, question, verbose=True):
     if not text:
         return "Error: No text to summarize"
 

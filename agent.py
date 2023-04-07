@@ -32,7 +32,7 @@ class Agent:
             await self.dealer.send_multipart(
                 [
                     self.dealer.identity,
-                    "Your response could not be parsed into the JSON format using json.loads. Please make sure you follow the format strictly.".encode(),
+                    f"Your response could not be parsed into the JSON format using json.loads. Please make sure you follow the format strictly:\n{response}".encode(),
                 ]
             )
         else:
