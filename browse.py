@@ -1,11 +1,8 @@
 import asyncio
 
 import aiohttp
-import requests
 from bs4 import BeautifulSoup
-from googlesearch import search
 from playwright.async_api import async_playwright
-from readability import Document
 
 from chat import Chat
 
@@ -108,7 +105,9 @@ async def summarize_text(text, question, verbose=True):
 
     for chunk in chunks:
         chat = Chat(model_name="gpt-3.5-turbo", max_tokens=300, verbose=verbose)
-        message = create_message(chunk, question)
+        message = f'"""{chunk}""" Using the above text, please extract any relevant information (texts, links, image links, etc.) to address the following question: "{question}" -- if the question cannot be answered using the text, please summarize the text. Use bulletpoints'
+
+        create_message(chunk, question)
 
         chat.add_user_message(message)
         get_sumary = chat.get_chat_response()
@@ -117,8 +116,8 @@ async def summarize_text(text, question, verbose=True):
     summaries = await asyncio.gather(*get_summaries)
     combined_summary = "\n".join(summaries)
 
-    chat = Chat(model_name="gpt-3.5-turbo", max_tokens=1000, verbose=verbose)
-    message = create_message(combined_summary, question)
+    chat = Chat(model_name="gpt-3.5-turbo", verbose=verbose)
+    message = f'{combined_summary}\n\nThe above text contains extracted details of a website. For the question "{question}", please provide a comprehensive markdown response, including appropriate citations and extracting any relevant links for further investigation.'
 
     chat.add_user_message(message)
     final_summary = await chat.get_chat_response()
