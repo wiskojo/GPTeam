@@ -9,9 +9,14 @@ from readability import Document
 from chat import Chat
 
 
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"
+}
+
+
 async def scrape_text(url):
     async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
+        async with session.get(url, headers=HEADERS) as response:
             # Check if the response contains an HTTP error
             if response.status >= 400:
                 return "Error: HTTP " + str(response.status) + " error"
